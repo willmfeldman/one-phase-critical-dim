@@ -1,0 +1,91 @@
+name: Release build archive
+
+# Attach prebuilt Lake build archives (`<package>-<platform>.tar.gz`) to a published GitHub release.
+# Projects that `require` this tag and set nothing else then download compiled .olean files
+# instead of building this package from source (the lakefile sets `preferReleaseBuild`).
+#
+# Early build (STANDARD §3 step 6): dispatch this on `main` together with the release gate
+# (`gh workflow run release-build-archive.yml --ref main`). It builds the release-candidate commit and
+# keeps the archives as workflow artifacts. When the release is published, the `release` run attaches
+# those artifacts instead of building again, but only if they come from a successful dispatch on the
+# tagged commit. Otherwise it builds from source as before.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to attach the archives to (e.g. v0.3.0). Leave empty for an early build of the dispatched commit.'
+        required: false
+        default: ''
+
+jobs:
+  archive:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux for CI runners; macOS arm64 for local clones and worktrees on the author's machine.
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 300   # PARAM: raise for large repos
+    permissions:
+      contents: write
+      actions: read
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      ARTIFACT: build-archive-${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG || github.sha }}
+          persist-credentials: false
+      # Release run: reuse the early build of exactly this commit, if one succeeded.
+      - name: Find an early build of this commit
+        id: early
+        if: env.TAG != ''
+        run: |
+          sha=$(git rev-parse HEAD)
+          run=$(gh run list -R "$GITHUB_REPOSITORY" --workflow release-build-archive.yml \
+                  --event workflow_dispatch --commit "$sha" --status success --limit 1 \
+                  --json databaseId -q '.[0].databaseId // empty')
+          if [ -n "$run" ] && gh run download "$run" -R "$GITHUB_REPOSITORY" -n "$ARTIFACT-$sha" -D early; then
+            ls early/*.tar.gz
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No early build for $sha; building from source."
+          fi
+      - name: Attach the early build to the release
+        if: steps.early.outputs.found == 'true'
+        run: gh release upload "$TAG" early/*.tar.gz -R "$GITHUB_REPOSITORY"
+      - name: Install elan
+        if: steps.early.outputs.found != 'true'
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch mathlib cache
+        if: steps.early.outputs.found != 'true'
+        run: lake exe cache get
+      # Build this package and its tracked upstreams from source: an archive never contains
+      # outputs that were themselves downloaded.
+      - name: Build library from source
+        if: steps.early.outputs.found != 'true'
+        run: lake build --no-cache
+      - name: Upload build archive to the release
+        if: steps.early.outputs.found != 'true' && env.TAG != ''
+        run: lake upload "$TAG"
+      # Early build: pack the archive under its release name and keep it as an artifact.
+      - name: Pack build archive
+        if: env.TAG == ''
+        run: |
+          lake pack
+          mkdir -p archive && mv .lake/*.tar.gz archive/
+          ls archive
+      - name: Keep the early build
+        if: env.TAG == ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ARTIFACT }}-${{ github.sha }}
+          path: archive/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14

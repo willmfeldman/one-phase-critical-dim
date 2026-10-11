@@ -1,0 +1,12 @@
+{
+ "m": 2,
+ "a": "3/5",
+ "eps": "1/10",
+ "delta": "1/10",
+ "comment": "d = 3. f = 1 (h = w^a), U = (2/5) A, K = M = P = 0.",
+ "terms": [
+  {"F": "f", "coef": "1", "h": 0, "scal": [], "pairs": [], "legs": []},
+  {"F": "U", "coef": "2/5", "h": 0, "scal": [], "pairs": [[0, 1, 1]], "legs": []}
+ ],
+ "interior": {"method": "constant"}
+}

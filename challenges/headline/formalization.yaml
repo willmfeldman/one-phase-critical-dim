@@ -1,0 +1,138 @@
+# Entry metadata for the `headline` workspace (format: mathlib-initiative formalization.yaml v0.4).
+# The root formalization.yaml keeps its own schema for the repository's checkers.
+# Keep comments outside block scalars (`>-`); anything inside one becomes public text.
+
+version: v0.4
+
+project:
+  name: "Flatness of one-homogeneous one-phase Bernoulli minimizers in dimensions at most six"
+  description: >-
+    A Lean 4 formalization of the flatness half of the main theorem of the
+    OpenAI preprint "The critical dimension for one-phase Bernoulli
+    minimizers" (September 24, 2026): for 1 ≤ d ≤ 6, every nonnegative,
+    nonzero, one-homogeneous global minimizer u of the one-phase Bernoulli
+    energy J(v; B) = ∫_B |∇v|² + 1_{v > 0} in ℝᵈ is flat, that is,
+    u(x) = max(⟪x, e⟫, 0) for almost every x, for some unit vector e. The
+    minimizer class is the one of Alt and Caffarelli, written out from
+    Mathlib definitions: on every ball B, u ∈ H¹(B) and J(u; B) ≤ J(v; B)
+    for every v ∈ H¹(B) with v − u ∈ H¹₀(B), with weak gradients and H¹₀(B)
+    (the closure of C_c^∞(B)) defined in the statement itself. The proof
+    follows the preprint's universal-certificate method; the classical
+    regularity theory of one-phase minimizers that the preprint cites is
+    proved, in this repository or its dependencies, and the classification
+    in dimensions d ≤ 4, which the preprint cites, is proved by the same
+    exclusion method with new certificates. Six further statements are
+    checks of the definitions, not results of the preprint: half-space
+    solutions are minimizers in every dimension; a one-sided linear
+    function with the wrong slope, a two-sided cone and 1 + ‖x‖² are not;
+    and 0 and a translated half-space solution are minimizers that are not
+    flat, so the hypotheses "nonzero" and "one-homogeneous" are needed.
+  authors: ["William M. Feldman"]
+  responsible_maintainers: ["William M. Feldman"]
+  license: "Apache-2.0"
+
+classification:
+  arxiv: ["math.AP"]
+  msc2020: ["35R35", "49Q05", "35B65"]
+
+sources:
+  - title: "The critical dimension for one-phase Bernoulli minimizers"
+    authors: ["OpenAI"]
+    type: paper
+    id: "https://github.com/openai/math/tree/main/preprints/The-critical-dimension-for-one-phase-Bernoulli-minimizers-September-24-2026"
+    location: "Theorem 1.1, first sentence (flatness for 1 ≤ d ≤ 6); preprint dated September 24, 2026"
+    relationship: formalizes
+    note: >-
+      Formalizes the flatness statement of Theorem 1.1 for 1 ≤ d ≤ 6, by the
+      preprint's universal-certificate method. The existence of a nonflat
+      minimizer in ℝ⁷ and the singular-set corollary are not formalized here.
+      The preprint cites the classification for d ≤ 4 and argues from a least
+      dimension carrying a nonflat cone; here d = 1, 2 are proved directly,
+      d = 3, 4 by the exclusion argument with new universal certificates on
+      ℝ² and ℝ³, and d = 5, 6 by induction on the dimension. The differences
+      in the statement are listed under fidelity.
+  - title: "Existence and regularity for a minimum problem with free boundary"
+    authors: ["H. W. Alt", "L. A. Caffarelli"]
+    type: paper
+    id: "doi:10.1515/crll.1981.325.105"
+    location: "J. Reine Angew. Math. 325 (1981), 105–144; the definition of a minimizer of the one-phase energy"
+    relationship: background
+    note: >-
+      Source of the admissible class used in the statement: on every ball B,
+      competitors v ∈ H¹(B) with v − u ∈ H¹₀(B).
+
+related_formalizations:
+  - title: "Nonflat one-homogeneous one-phase minimizer in dimension seven (openai/math, lean/OAI/Analysis/BernoulliCone)"
+    id: "https://github.com/openai/math/tree/main/lean/OAI/Analysis/BernoulliCone"
+    relationship: independent
+    note: >-
+      Formalizes the other half of the preprint's Theorem 1.1, a nonflat
+      one-homogeneous global minimizer in ℝ⁷, with its own definition of a
+      global minimizer. No code from it is used here, and no machine-checked
+      bridge between the two minimizer definitions exists yet.
+
+automation:
+  methods:
+    - method: agent
+      models: ["Claude Opus 5.5"]
+      framework: "Claude Code"
+  notes: >-
+    The Lean proofs were written by AI coding agents (Claude Opus 5.5) under the author's
+    direction. Correctness rests on Lean's kernel check, together with the comparator challenge
+    in challenges/headline.
+
+review:
+  status: "author-verified"
+  notes: >-
+    The author checked the trusted definitions and statements in
+    challenges/headline/Challenge.lean: the textbook class of one-phase
+    minimizers and the statements of the compared theorems. No other part of
+    the project was reviewed by hand. The library and its proofs are checked by
+    Lean's kernel, and the comparator checks that the Solution proves exactly
+    the statements in Challenge.lean.
+
+fidelity:
+  divergences: >-
+    Functions are compared almost everywhere, as statements about Sobolev
+    classes: nonnegativity, one-homogeneity (for each r > 0, u(rx) = r u(x)
+    for almost every x, as in the preprint), "nonzero" (not almost
+    everywhere zero) and the flat conclusion are all almost-everywhere
+    statements about a function u : ℝᵈ → ℝ. The minimizer class is the
+    vocabulary's TextbookMin rather than the preprint's notion: there is one
+    weak gradient G of u on ℝᵈ, u ∈ H¹(B) on every ball B, and competitors
+    v ∈ H¹(B) may have any sign, whereas the preprint takes nonnegative
+    u ∈ H¹_loc(ℝᵈ) and nonnegative competitors (nonnegativity of u is a
+    separate hypothesis here). For nonnegative u the two notions agree,
+    since replacing v by max(v, 0) does not increase the energy and keeps
+    the boundary condition. Weak gradients are carried as explicit data and
+    defined coordinate by coordinate against test functions in C_c^∞(B);
+    H¹₀(B) is the closure of C_c^∞(B) in H¹(B), with the gradient part of the
+    approximation measured coordinate by coordinate, which gives the same
+    closure as the Euclidean norm. The energy is a real Bochner integral,
+    finite for H¹(B) functions on a ball. Only the flatness half of the
+    preprint's Theorem 1.1 is formalized. The six checks of the definitions
+    are not results of the preprint.
+
+status:
+  main_results:
+    - declaration: "OnePhaseDimension.Headline.challenge_flat_of_textbookMin"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"
+    - declaration: "OnePhaseDimension.Sanity.challenge_textbookMin_halfSpace"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"
+    - declaration: "OnePhaseDimension.Sanity.challenge_not_textbookMin_slope"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"
+    - declaration: "OnePhaseDimension.Sanity.challenge_not_textbookMin_two_sided"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"
+    - declaration: "OnePhaseDimension.Sanity.challenge_not_textbookMin_one_add_norm_sq"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"
+    - declaration: "OnePhaseDimension.Sanity.challenge_textbookMin_zero"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"
+    - declaration: "OnePhaseDimension.Sanity.challenge_textbookMin_shifted_halfSpace"
+      file: "challenges/headline/Challenge.lean"
+      comparator_config: "challenges/headline/config.json"

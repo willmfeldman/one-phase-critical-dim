@@ -1,0 +1,13 @@
+exact check of certs/m2_cert.json: m = 2, a = 3/5, eps = 1/10, delta = 1/10
+  structure: 2 terms; every term is an O(2)-equivariant graph monomial; U,K even in p; P has g-degree >= 1 in every term
+  boundary: PASS  {"S_exact": "sqrt(2)/10", "delta": "1/10", "S_float": 0.1414213562373095}
+  built I exactly: 22 terms (0.0s)
+  interior: PASS  {"method": "constant", "V": 6, "ldl_ok": true, "min_pivot": "0"}
+  interior matrix (Q - eps E):
+           0        0        0        0        0        0
+           0     9/20        0        0        0        0
+           0        0     9/10        0      3/5      3/5
+           0        0        0     9/10      3/5     -3/5
+           0        0      3/5      3/5    24/25        0
+           0        0      3/5     -3/5        0    24/25
+RESULT: ACCEPTED  (0.4s)

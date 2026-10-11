@@ -1,0 +1,41 @@
+name = "one_phase_dimension"
+version = "0.1.0"
+description = "Flatness of one-homogeneous minimizers of the one-phase Bernoulli problem in dimensions at most six"
+keywords = ["math"]
+defaultTargets = ["OnePhaseDimension"]
+preferReleaseBuild = true
+
+[leanOptions]
+pp.unicode.fun = true
+relaxedAutoImplicit = false
+autoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0-rc3"
+
+[[require]]
+name = "elliptic_bernoulli_foundations"
+git = "https://github.com/willmfeldman/elliptic-bernoulli-foundations"
+rev = "v0.4.0"
+
+[[require]]
+name = "inner_variational"
+git = "https://github.com/willmfeldman/bernoulli-rectifiability"
+rev = "v0.4.2"
+
+[[require]]
+name = "perron_variational"
+git = "https://github.com/willmfeldman/bernoulli-perron-variational"
+rev = "v0.2.1"
+
+[[lean_lib]]
+name = "OnePhaseDimension"
+
+# Kernel regression checks of the certificate engine (not a default target; heavy: ~150 s, ~4 GB per chunk).
+[[lean_lib]]
+name = "OnePhaseDimensionChecks"
+roots = ["OnePhaseDimension.Certificate.Spike.Checks"]

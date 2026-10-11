@@ -1,0 +1,6 @@
+exact check of certs/m3_cert.json: m = 3, a = 11/20, eps = 1/50, delta = 1/100
+  structure: 11 terms; every term is an O(3)-equivariant graph monomial; U,K even in p; P has g-degree >= 1 in every term
+  boundary: PASS  {"symmetric_in_x0_x1": true, "S_of_s": "3*s**4/8 + 1533*s**3/1000 - 1347*s**2/2000 - 1617*s/2000 + 193/500", "roots_of_S-delta_in_[0,0.8165]": 0, "S(0)-delta": "47/125", "S_min_on_grid": 0.02612172656, "delta": "1/100"}
+  built I exactly: 2986 terms (0.3s)
+  interior: PASS  {"method": "sos", "eta": "1/1000", "blocks": 19, "gram_dims": [55, 10, 20, 20, 20, 20, 35, 20, 20, 35, 35, 5, 5, 5, 5, 15, 15, 15, 5], "min_pivots": [0.007094883001593694, 0.011476248098355749, 0.005738070882530792, 0.025862730069334927, 0.006023824697833723, 0.029445552033675257, 0.022250192911543936, 0.003762794842679831, 0.05452353786399677, 0.015916682018577977, 0.036970667624212285, 0.2976449082345426, 0.5904614857937025, 0.018648451, 0.205902131, 0.1265604204299543, 0.18658493454153038, 0.2718432730628528, 0.5904614857937025], "residual_terms": 1275, "residual_max_coef": 4e-09, "residual_rowsum_bound": "67/500000000", "residual_bound_float": 1.34e-07, "bound_lt_eta": true, "time_sos_check": 3.100628137588501}
+RESULT: ACCEPTED  (4.2s)

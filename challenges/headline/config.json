@@ -1,0 +1,19 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "OnePhaseDimension.Headline.challenge_flat_of_textbookMin",
+    "OnePhaseDimension.Sanity.challenge_textbookMin_halfSpace",
+    "OnePhaseDimension.Sanity.challenge_not_textbookMin_slope",
+    "OnePhaseDimension.Sanity.challenge_not_textbookMin_two_sided",
+    "OnePhaseDimension.Sanity.challenge_not_textbookMin_one_add_norm_sq",
+    "OnePhaseDimension.Sanity.challenge_textbookMin_zero",
+    "OnePhaseDimension.Sanity.challenge_textbookMin_shifted_halfSpace"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,97 @@
+cff-version: 1.2.0
+message: "If you use this Lean formalization, please cite it using this metadata."
+title: "one-phase-critical-dim: flatness of one-homogeneous one-phase Bernoulli minimizers in dimensions at most six, in Lean"
+version: "0.1.0"
+license: "Apache-2.0"
+repository-code: "https://github.com/willmfeldman/one-phase-critical-dim"
+authors:
+  - family-names: Feldman
+    given-names: "William M."
+abstract: >-
+  Lean 4 / Mathlib proof that, for 1 ≤ d ≤ 6, every nonnegative, nonzero, one-homogeneous global
+  minimizer of the one-phase Bernoulli energy in ℝᵈ is flat. The proof follows the
+  universal-certificate method of the preprint "The critical dimension for one-phase Bernoulli
+  minimizers"; the classical regularity theory it uses, and the classification in dimensions at
+  most four, are proved rather than assumed.
+keywords:
+  - Lean
+  - Mathlib
+  - formalized mathematics
+  - free boundary problems
+  - Bernoulli problem
+  - one-phase problem
+  - minimal cones
+references:
+  - type: report
+    authors:
+      - name: "OpenAI"
+    title: "The critical dimension for one-phase Bernoulli minimizers"
+    year: 2026
+    date-released: "2026-09-24"
+    identifiers:
+      - type: url
+        value: "https://github.com/openai/math/tree/main/preprints/The-critical-dimension-for-one-phase-Bernoulli-minimizers-September-24-2026"
+  - type: article
+    authors:
+      - family-names: Alt
+        given-names: "Hans W."
+      - family-names: Caffarelli
+        given-names: "Luis A."
+    title: "Existence and regularity for a minimum problem with free boundary"
+    journal: "Journal für die reine und angewandte Mathematik"
+    volume: "325"
+    start: 105
+    end: 144
+    year: 1981
+  - type: article
+    authors:
+      - family-names: Weiss
+        given-names: "Georg S."
+    title: "Partial regularity for a minimum problem with free boundary"
+    journal: "The Journal of Geometric Analysis"
+    volume: "9"
+    year: 1999
+  - type: book
+    authors:
+      - family-names: Velichkov
+        given-names: Bozhidar
+    title: "Regularity of the One-phase Free Boundaries"
+    collection-title: "Lecture Notes of the Unione Matematica Italiana"
+    volume: "28"
+    publisher:
+      name: "Springer"
+    year: 2023
+    identifiers:
+      - type: doi
+        value: "10.1007/978-3-031-13238-4"
+  - type: article
+    authors:
+      - family-names: Kriventsov
+        given-names: Dennis
+      - family-names: Weiss
+        given-names: "Georg S."
+    title: "Rectifiability, finite Hausdorff measure, and compactness for non-minimizing Bernoulli free boundaries"
+    journal: "Communications on Pure and Applied Mathematics"
+    volume: "78"
+    issue: "3"
+    start: 545
+    end: 591
+    year: 2025
+    identifiers:
+      - type: doi
+        value: "10.1002/cpa.22226"
+      - type: url
+        value: "https://arxiv.org/abs/2306.10131"
+  - type: article
+    authors:
+      - family-names: Abedin
+        given-names: Farhan
+      - family-names: Feldman
+        given-names: "William M."
+      - family-names: Stinson
+        given-names: Kerrek
+    title: "Variational properties of Perron's extremal solutions in the Bernoulli one-phase problem"
+    year: 2026
+    identifiers:
+      - type: url
+        value: "https://arxiv.org/abs/2609.14981"

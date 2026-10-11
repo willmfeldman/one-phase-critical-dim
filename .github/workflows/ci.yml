@@ -1,0 +1,203 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  # Nightly run: the only run that always builds the certificate-engine regression checks.
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v7
+      # Mathlib, the dependencies and this library do not fit in a hosted runner's default free
+      # space. Remove preinstalled SDKs this job never uses.
+      - name: Free runner disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - name: Install elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      # Mathlib and its dependencies come from `lake exe cache get`, and Lake downloads the other
+      # dependencies from their releases' prebuilt build archives where available, so cache only
+      # this project's own build. A restored dependency build folder would stop Lake from
+      # downloading the archive. Caching all of `.lake` exhausts runner disk.
+      - name: Restore Lake artifacts
+        uses: actions/cache/restore@v6
+        with:
+          path: .lake/build
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-${{ hashFiles('OnePhaseDimension.lean', 'OnePhaseDimension/**/*.lean') }}
+          restore-keys: |
+            lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-
+            lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      # Warnings are errors: the release gate requires a warning-free build. This includes a failed
+      # download of a dependency's prebuilt build archive (Lake reports that as a warning).
+      - name: Build complete library
+        run: lake build --wfail
+      # The regression checks import only `OnePhaseDimension/Certificate/`. Build them on the nightly
+      # and manual runs, and on pushes and pull requests that touch that directory or the toolchain
+      # and dependency pins. A new branch (no `before` commit) counts as touching everything.
+      - name: Decide whether to build the regression checks
+        id: checks
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          run=true
+          if [ "$EVENT" = push ] || [ "$EVENT" = pull_request ]; then
+            if [ -n "$BEFORE" ] && [ "$BEFORE" != 0000000000000000000000000000000000000000 ] \
+                && git fetch --quiet --depth=1 origin "$BEFORE"; then
+              if ! git diff --name-only "$BEFORE" HEAD \
+                  | grep -qE '^(OnePhaseDimension/Certificate/|lakefile\.toml$|lake-manifest\.json$|lean-toolchain$)'; then
+                run=false
+              fi
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "build regression checks: $run"
+      # Kernel regression checks of the certificate engine: a separate library, not imported by the
+      # root module (heavy: a few minutes and several GB of memory per chunk).
+      - name: Build certificate-engine regression checks
+        if: steps.checks.outputs.run == 'true'
+        run: lake build --wfail OnePhaseDimensionChecks
+      - name: Check trusted library source
+        shell: python3 {0}
+        run: |
+          from pathlib import Path
+          import re
+          import sys
+
+          forbidden = {"sorry", "admit", "axiom", "native_decide"}
+
+          def code_only(source: str) -> str:
+              """Mask comments and string literals while preserving positions."""
+              masked = list(source)
+              i = 0
+              block_depth = 0
+              state = "code"
+              while i < len(source):
+                  if state == "code":
+                      if source.startswith("--", i):
+                          masked[i:i + 2] = "  "
+                          i += 2
+                          state = "line_comment"
+                      elif source.startswith("/-", i):
+                          masked[i:i + 2] = "  "
+                          i += 2
+                          block_depth = 1
+                          state = "block_comment"
+                      elif source.startswith('\"\"\"', i):
+                          masked[i:i + 3] = "   "
+                          i += 3
+                          state = "triple_string"
+                      elif source[i] == '\"':
+                          masked[i] = " "
+                          i += 1
+                          state = "string"
+                      else:
+                          i += 1
+                  elif state == "line_comment":
+                      if source[i] == "\n":
+                          state = "code"
+                      else:
+                          masked[i] = " "
+                      i += 1
+                  elif state == "block_comment":
+                      if source.startswith("/-", i):
+                          masked[i:i + 2] = "  "
+                          block_depth += 1
+                          i += 2
+                      elif source.startswith("-/", i):
+                          masked[i:i + 2] = "  "
+                          block_depth -= 1
+                          i += 2
+                          if block_depth == 0:
+                              state = "code"
+                      else:
+                          if source[i] != "\n":
+                              masked[i] = " "
+                          i += 1
+                  elif state == "string":
+                      if source[i] == "\\":
+                          masked[i] = " "
+                          if i + 1 < len(source):
+                              if source[i + 1] != "\n":
+                                  masked[i + 1] = " "
+                              i += 2
+                          else:
+                              i += 1
+                      elif source[i] == '\"':
+                          masked[i] = " "
+                          i += 1
+                          state = "code"
+                      else:
+                          if source[i] != "\n":
+                              masked[i] = " "
+                          i += 1
+                  else:  # triple_string
+                      if source.startswith('\"\"\"', i):
+                          masked[i:i + 3] = "   "
+                          i += 3
+                          state = "code"
+                      else:
+                          if source[i] != "\n":
+                              masked[i] = " "
+                          i += 1
+              return "".join(masked)
+
+          failures = []
+          paths = [Path("OnePhaseDimension.lean"), *Path("OnePhaseDimension").rglob("*.lean")]
+          for path in paths:
+              source = path.read_text(encoding="utf-8")
+              for match in re.finditer(r"[A-Za-z_][A-Za-z0-9_']*", code_only(source)):
+                  if match.group() in forbidden:
+                      line = source.count("\n", 0, match.start()) + 1
+                      failures.append(f"{path}:{line}: forbidden token {match.group()}")
+          if failures:
+              print("\n".join(failures), file=sys.stderr)
+              raise SystemExit(1)
+      - name: Enforce library source-file size limit
+        run: |
+          find OnePhaseDimension -type f -name '*.lean' -exec wc -l {} + | \
+            awk '$2 != "total" && $1 >= 1000 { print; bad = 1 } END { exit bad }'
+          test "$(wc -l < OnePhaseDimension.lean)" -lt 1000
+      - name: Check every library file is a Lean module
+        run: python3 scripts/check_integrity.py
+      - name: Validate manifest, library Lean names, and exact target axioms
+        run: ruby scripts/check-formalization-manifest.rb
+      # Challenge.lean states the challenges with `sorry` by design; the vocabulary files
+      # (Vocabulary.lean) and the solutions must contain none.
+      - name: Check challenge vocabulary and solutions for sorry, axioms, and native_decide
+        run: |
+          ! grep -nE '\bsorry\b|^axiom |\badmit\b|native_decide' challenges/*/Vocabulary.lean challenges/*/Solution.lean
+      # Elaboration shows each Vocabulary, Challenge and Solution compiles against this
+      # commit's library.  It is not a statement comparison; that is the
+      # release Comparator workflow's job.
+      - name: Elaborate challenge workspaces (Vocabulary, Challenge and Solution)
+        run: scripts/check-challenges.sh
+      - name: Check challenge vocabularies are verbatim copies of the library file
+        run: |
+          for v in challenges/*/Vocabulary.lean; do
+            diff <(tail -n +6 "$v") <(tail -n +6 OnePhaseDimension/Sanity/Textbook/Defs.lean)
+          done
+      # Module headers repo-wide, Challenge.lean's generated vocabulary block in sync with
+      # Vocabulary.lean, Lean core/Mathlib-only Challenge imports, and the Challenge size limit.
+      - name: Check challenge layout (challenge-prep)
+        run: python3 scripts/challenge-prep.py check
+      - name: Save Lake artifacts
+        uses: actions/cache/save@v6
+        if: always()
+        with:
+          path: .lake/build
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-${{ hashFiles('OnePhaseDimension.lean', 'OnePhaseDimension/**/*.lean') }}

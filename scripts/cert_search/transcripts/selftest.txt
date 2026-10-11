@@ -1,0 +1,7 @@
+[U=A, m=2] interior err 5.55e-16, boundary err 0.00e+00
+[U=A, m=3] interior err 8.88e-16, boundary err 2.22e-16
+[U=A, m=4] interior err 1.11e-15, boundary err 2.22e-16
+[U=A, m=5] interior err 1.55e-15, boundary err 2.78e-17
+[paper m=5] interior: min eig of I - eps*(z^2+|l|^2) over 400 pts = 1.751e+01  (16.1s)
+[paper m=5] boundary: min S over 1470 pts = 0.933626 (delta_* = 0.223492)
+selftest OK

@@ -1,0 +1,8 @@
+[1] exact I vs numeric engine at 5 random non-diagonal points: max rel err 5.98e-16
+[2] exact O(3) equivariance under a rational rotation at 2 rational points: True
+[3] exact U = A row vs m z^2 + |X|^2 + (2a-2)|q|^2 (m=3), max |diff| at |A|=1: 5.77e-16
+[4] negative control 'a = 7/10 with same data': REJECTED (good)
+[4] negative control 'M set to 0': REJECTED (good)
+[4] negative control 'delta = 1/10': REJECTED (good)
+[4] negative control 'eps = 1/10': REJECTED (good)
+crosscheck OK
