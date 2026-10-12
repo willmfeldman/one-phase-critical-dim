@@ -18,6 +18,7 @@ jobs:
       matrix:
         include:
           # PARAM: one line per submitted workspace; `id` is exactly 12 lowercase letters/digits.
+          # PARAM: project_path is "" (the repository root) for a workspace without its own lakefile.
           - { workspace: headline, id: headline0001 }
     uses: PalomarRegistry/PalomarSubmission/.github/workflows/submission.yml@65f0154ed776cd26c224254aa57b379137f28b0d
     with:
@@ -28,7 +29,7 @@ jobs:
       mode: full
       execution_profile: palomar-standard-v1
       options: >-
-        {"project_path":"challenges/${{ matrix.workspace }}",
+        {"project_path":"",
         "comparator_config_path":"challenges/${{ matrix.workspace }}/config.json",
         "formalization_metadata_path":"challenges/${{ matrix.workspace }}/formalization.yaml",
         "authorization_relationship":"I am a responsible author or maintainer"}

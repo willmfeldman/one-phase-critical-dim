@@ -229,8 +229,9 @@ Throughout, the proof is organized as an induction on the dimension: flatness of
 is the input that makes cones in $RR^n$ smooth away from the vertex. Dimension one is elementary, and
 dimensions two through six are obtained one at a time. The flatness statement of @thm:main for $n <= 6$
 has been formally verified in the Lean proof assistant, including the algebraic certificates, which are
-checked in exact arithmetic; the verification takes the Lipschitz regularity of minimizers and the
-smoothness of free boundaries near flat blowups as cited inputs.
+checked in exact arithmetic. The regularity inputs of @sec:reduction, including the Lipschitz
+regularity of minimizers and the smoothness of free boundaries near flat blowups, are formally
+verified as well, partly in companion formalizations.
 
 == Conventions
 

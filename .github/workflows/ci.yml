@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: .lake/build
-          key: lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-${{ hashFiles('OnePhaseDimension.lean', 'OnePhaseDimension/**/*.lean') }}
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-${{ hashFiles('OnePhaseDimension.lean', 'OnePhaseDimension/**/*.lean', 'challenges/*/*.lean') }}
           restore-keys: |
             lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-
             lake-build-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-
@@ -181,10 +181,11 @@ jobs:
       - name: Check challenge vocabulary and solutions for sorry, axioms, and native_decide
         run: |
           ! grep -nE '\bsorry\b|^axiom |\badmit\b|native_decide' challenges/*/Vocabulary.lean challenges/*/Solution.lean
-      # Elaboration shows each Vocabulary, Challenge and Solution compiles against this
-      # commit's library.  It is not a statement comparison; that is the
-      # release Comparator workflow's job.
-      - name: Elaborate challenge workspaces (Vocabulary, Challenge and Solution)
+      # Vocabulary, Challenge and Solution are libraries of this package (srcDir
+      # challenges/headline), built from the root with its leanOptions; Vocabulary and Solution
+      # with --wfail. Elaboration shows they compile against this commit's library. It is not a
+      # statement comparison; that is the release Comparator workflow's job.
+      - name: Elaborate challenge libraries (Vocabulary, Challenge and Solution)
         run: scripts/check-challenges.sh
       - name: Check challenge vocabularies are verbatim copies of the library file
         run: |
@@ -200,4 +201,4 @@ jobs:
         if: always()
         with:
           path: .lake/build
-          key: lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-${{ hashFiles('OnePhaseDimension.lean', 'OnePhaseDimension/**/*.lean') }}
+          key: lake-build-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}-${{ hashFiles('OnePhaseDimension.lean', 'OnePhaseDimension/**/*.lean', 'challenges/*/*.lean') }}

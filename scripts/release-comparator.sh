@@ -77,9 +77,12 @@ for config in configs:
     if sorted(cfg['permitted_axioms']) != ['Classical.choice', 'Quot.sound', 'propext']:
         raise SystemExit(f'Unexpected axiom allowance in {config}')
     name = config.parent.name
+    # A workspace without its own lakefile is built by the root lakefile (root-project workspace).
+    has_lakefile = any((config.parent / f).exists() for f in ('lakefile.toml', 'lakefile.lean'))
     with (report / 'logs' / f'{name}.log').open('w') as log:
         result = subprocess.run(['lake', 'env', str(tools / 'bin' / 'comparator'), str(config.resolve())],
-                                cwd=config.parent, stdout=log, stderr=subprocess.STDOUT)
+                                cwd=config.parent if has_lakefile else root,
+                                stdout=log, stderr=subprocess.STDOUT)
     ok = result.returncode == 0
     data['results'].append({
         'config': str(config.relative_to(root)), 'theorems': cfg['theorem_names'],

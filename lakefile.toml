@@ -1,5 +1,5 @@
 name = "one_phase_dimension"
-version = "0.1.0"
+version = "0.1.1"
 description = "Flatness of one-homogeneous minimizers of the one-phase Bernoulli problem in dimensions at most six"
 keywords = ["math"]
 defaultTargets = ["OnePhaseDimension"]
@@ -39,3 +39,21 @@ name = "OnePhaseDimension"
 [[lean_lib]]
 name = "OnePhaseDimensionChecks"
 roots = ["OnePhaseDimension.Certificate.Spike.Checks"]
+
+# The comparator challenge `challenges/headline` (see challenges/README.md). Its modules are libraries of
+# this package, so the challenge is checked from the repository root. Not default targets: `lake build`
+# builds only `OnePhaseDimension`. `Solution` declares the same names as `Vocabulary`; nothing imports both.
+[[lean_lib]]
+name = "Vocabulary"
+srcDir = "challenges/headline"
+
+# The first line of Challenge.lean's generated vocabulary block (scripts/challenge-prep.py) is longer
+# than the Mathlib style limit; it is not hand-written, so the line-length linter is off here.
+[[lean_lib]]
+name = "Challenge"
+srcDir = "challenges/headline"
+leanOptions = { weak.linter.style.longLine = false }
+
+[[lean_lib]]
+name = "Solution"
+srcDir = "challenges/headline"

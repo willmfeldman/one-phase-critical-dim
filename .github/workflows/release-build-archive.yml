@@ -4,11 +4,11 @@ name: Release build archive
 # Projects that `require` this tag and set nothing else then download compiled .olean files
 # instead of building this package from source (the lakefile sets `preferReleaseBuild`).
 #
-# Early build (STANDARD §3 step 6): dispatch this on `main` together with the release gate
+# Early build: dispatch this on `main` together with the release gate
 # (`gh workflow run release-build-archive.yml --ref main`). It builds the release-candidate commit and
 # keeps the archives as workflow artifacts. When the release is published, the `release` run attaches
-# those artifacts instead of building again, but only if they come from a successful dispatch on the
-# tagged commit. Otherwise it builds from source as before.
+# those artifacts instead of building again, but only if they come from a dispatch on the tagged commit
+# whose job for that OS kept an archive. Otherwise it builds from source as before.
 on:
   release:
     types: [published]
@@ -24,8 +24,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Linux for CI runners; macOS arm64 for local clones and worktrees on the author's machine.
-        os: [ubuntu-latest, macos-latest]
+        # Linux for CI runners; macOS arm64 for local builds on Apple silicon.
+        # PARAM: a repo with no dependents may use [ubuntu-latest] only (archive_platforms in repos.toml).
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300   # PARAM: raise for large repos
     permissions:
@@ -40,21 +41,29 @@ jobs:
         with:
           ref: ${{ env.TAG || github.sha }}
           persist-credentials: false
-      # Release run: reuse the early build of exactly this commit, if one succeeded.
+      # Release run: reuse this OS's early build of exactly this commit, if one exists. Matched per OS by
+      # artifact name, not by run conclusion: a dispatch whose other OS failed or timed out still kept a
+      # good archive for this one (the artifact is only uploaded after `lake pack` succeeded).
       - name: Find an early build of this commit
         id: early
         if: env.TAG != ''
         run: |
           sha=$(git rev-parse HEAD)
-          run=$(gh run list -R "$GITHUB_REPOSITORY" --workflow release-build-archive.yml \
-                  --event workflow_dispatch --commit "$sha" --status success --limit 1 \
-                  --json databaseId -q '.[0].databaseId // empty')
-          if [ -n "$run" ] && gh run download "$run" -R "$GITHUB_REPOSITORY" -n "$ARTIFACT-$sha" -D early; then
-            ls early/*.tar.gz
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No early build for $sha; building from source."
-          fi
+          runs=$(gh run list -R "$GITHUB_REPOSITORY" --workflow release-build-archive.yml \
+                   --event workflow_dispatch --commit "$sha" --limit 10 \
+                   --json databaseId,status -q '.[] | select(.status == "completed") | .databaseId')
+          found=false
+          for run in $runs; do
+            rm -rf early
+            if gh run download "$run" -R "$GITHUB_REPOSITORY" -n "$ARTIFACT-$sha" -D early 2>/dev/null \
+                && ls early/*.tar.gz; then
+              echo "Using the early build from run $run."
+              found=true
+              break
+            fi
+          done
+          echo "found=$found" >> "$GITHUB_OUTPUT"
+          [ "$found" = true ] || echo "No early build for $sha on $ARTIFACT; building from source."
       - name: Attach the early build to the release
         if: steps.early.outputs.found == 'true'
         run: gh release upload "$TAG" early/*.tar.gz -R "$GITHUB_REPOSITORY"

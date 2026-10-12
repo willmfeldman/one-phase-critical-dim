@@ -6,14 +6,14 @@ name: Release comparator
 on:
   workflow_dispatch:
   # Release-candidate branches. Version tags don't trigger it: the tag goes on a commit whose dispatched
-  # run already passed (STANDARD §3 step 7), so a tag-push run would only repeat it.
+  # run already passed, so a tag-push run would only repeat it.
   push:
     branches: ['release/**']
 
 jobs:
   comparator:
     runs-on: ubuntu-latest
-    timeout-minutes: 300   # PARAM: raise for large repos
+    timeout-minutes: 300   # PARAM: raise for large repos (up to 300)
     permissions:
       contents: read
     steps:
@@ -55,7 +55,9 @@ jobs:
         run: |
           for workspace in challenges/*/; do
             echo "==> ${workspace}Challenge"
-            (cd "$workspace" && lake build Vocabulary Challenge)   # PARAM: `Vocabulary Challenge` if workspaces have Vocabulary modules (v1.4)
+            # A workspace without its own lakefile is built by the root lakefile.
+            dir="$workspace"; [ -e "$workspace/lakefile.toml" ] || [ -e "$workspace/lakefile.lean" ] || dir=.
+            (cd "$dir" && lake build Vocabulary Challenge)   # PARAM: `Vocabulary Challenge` if workspaces have Vocabulary modules (v1.4)
           done
       - name: Run Comparator on every challenge
         run: bash scripts/release-comparator.sh run

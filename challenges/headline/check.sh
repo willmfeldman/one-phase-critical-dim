@@ -1,9 +1,12 @@
 #!/bin/bash
 # Local acceptance check for a challenge workspace (a substitute for a Comparator run,
 # which needs Linux). Run from anywhere, in a trusted checkout, after the root library is built.
+# Vocabulary, Challenge and Solution are libraries of the root package, so lake runs from the
+# repository root.
 #
 # 1. Builds Vocabulary, Challenge and Solution with `lake`, or with the command in the environment
-#    variable LAKE if it is set (for example a wrapper that limits parallelism).
+#    variable LAKE if it is set (for example a wrapper that limits parallelism; use an absolute
+#    path).
 # 2. Runs `#print axioms` on every theorem of config.json in the Solution environment. Each must
 #    use only the permitted axioms; `sorryAx` or any other axiom is a failure.
 # 3. Checks that Vocabulary.lean is a verbatim copy (after the copyright header) of
@@ -18,12 +21,12 @@
 set -u
 ws=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$ws/../.." && pwd)
-cd "$ws" || exit 2
+cd "$root" || exit 2
 lake_() { ${LAKE:-lake} "$@"; }
 status=0
 
 echo "==> Vocabulary.lean is a verbatim copy of the library file"
-if diff <(tail -n +6 Vocabulary.lean) <(tail -n +6 "$root/OnePhaseDimension/Sanity/Textbook/Defs.lean") > /dev/null; then
+if diff <(tail -n +6 "$ws/Vocabulary.lean") <(tail -n +6 OnePhaseDimension/Sanity/Textbook/Defs.lean) > /dev/null; then
   echo "  VERBATIM"
 else
   echo "  DIFFERENT from OnePhaseDimension/Sanity/Textbook/Defs.lean"; status=1
@@ -34,8 +37,8 @@ build_log=$(lake_ build Vocabulary Challenge Solution 2>&1); build_status=$?
 printf '%s\n' "$build_log" | grep -E "^error|✖|Build completed"
 if [ $build_status -ne 0 ]; then echo "BUILD FAILED"; exit 1; fi
 
-thms=$(python3 -I -c "import json,sys;print(' '.join(json.load(open(sys.argv[1]))['theorem_names']))" config.json)
-allowed=$(python3 -I -c "import json,sys;print(' '.join(json.load(open(sys.argv[1]))['permitted_axioms']))" config.json)
+thms=$(python3 -I -c "import json,sys;print(' '.join(json.load(open(sys.argv[1]))['theorem_names']))" "$ws/config.json")
+allowed=$(python3 -I -c "import json,sys;print(' '.join(json.load(open(sys.argv[1]))['permitted_axioms']))" "$ws/config.json")
 
 echo "==> axioms"
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/challenge-XXXXXX")
@@ -54,8 +57,8 @@ for t in $thms; do
 done
 
 echo "==> statement fingerprints (Challenge vs Solution)"
-lake_ env lean --run tools/fingerprint.lean Challenge $thms > "$tmp/challenge" 2>&1
-lake_ env lean --run tools/fingerprint.lean Solution $thms > "$tmp/solution" 2>&1
+lake_ env lean --run "$ws/tools/fingerprint.lean" Challenge $thms > "$tmp/challenge" 2>&1
+lake_ env lean --run "$ws/tools/fingerprint.lean" Solution $thms > "$tmp/solution" 2>&1
 if grep -q MISSING "$tmp/challenge" "$tmp/solution"; then
   echo "  MISSING constants:"; grep MISSING "$tmp/challenge" "$tmp/solution"; status=1
 elif diff "$tmp/challenge" "$tmp/solution" > "$tmp/diff"; then

@@ -1,7 +1,11 @@
 # Comparator challenges
 
 This directory contains the release comparator workspace for `OnePhaseDimension`,
-`challenges/headline`. It is a standalone Lake workspace with:
+`challenges/headline`. It has no Lake project of its own: `Vocabulary`, `Challenge` and `Solution`
+are libraries of the root `lakefile.toml` with `srcDir = "challenges/headline"`, not default
+targets, so the challenge is built and checked from the repository root
+(`lake build Vocabulary Challenge Solution`) with the root's toolchain, dependencies and options.
+The workspace contains:
 
 - `Vocabulary.lean`: a verbatim copy (after the copyright header) of the library file
   `OnePhaseDimension/Sanity/Textbook/Defs.lean`. It imports Mathlib only and defines the textbook
@@ -16,9 +20,7 @@ This directory contains the release comparator workspace for `OnePhaseDimension`
   proves the same statements under the same names;
 - `config.json`: comparator module names, theorem names and permitted axioms
   (`propext`, `Quot.sound`, `Classical.choice`);
-- `lakefile.toml`, `lake-manifest.json` and `lean-toolchain`: workspace metadata pinned through the
-  parent project (the workspaces share the root's `.lake/packages`). `Solution` is not a default
-  target;
+- `formalization.yaml`: the entry metadata of the challenge;
 - `check.sh` and `tools/fingerprint.lean`: a local substitute for a Comparator run (see below).
 
 The trusted surface of the challenge is Mathlib plus the restated vocabulary: the library's own
@@ -32,10 +34,6 @@ fails if the generated block is out of date.
 | `OnePhaseDimension.Headline.challenge_flat_of_textbookMin` | The main theorem in textbook vocabulary: for `1 ≤ d ≤ 6`, a nonnegative, one-homogeneous, not a.e. vanishing `TextbookMin` function on `ℝᵈ` equals `max ⟪x, e⟫ 0` a.e. for a unit vector `e`. |
 | six `OnePhaseDimension.Sanity.challenge_*` theorems | Checks of the definitions, not headline results: `TextbookMin` contains the half-space solutions in every dimension; it rejects a wrong slope, the two-sided cone, and `1 + ‖x‖²`; `0` and a translated half-space solution are minimizers that are not flat, so the hypotheses "nonzero" and "one-homogeneous" of the main theorem are needed. |
 
-These six were a separate workspace, `minimizer-sanity`, until 2026-10-10; they are now checked in
-`headline`, next to the theorem whose definitions they justify. In `formalization.yaml` their
-target `minimizer-sanity` records `checked_in: [challenges/headline]`.
-
 ## Running
 
 **Release gate (Linux).** `.github/workflows/release-comparator.yml` installs pinned revisions of
@@ -46,14 +44,14 @@ attestation (commit, tree, toolchain, Mathlib revision, tool revisions, per-chal
 logs). A version tag or GitHub release is created only after this workflow passes on the exact
 commit.
 
-**Per commit (CI).** `scripts/check-challenges.sh` builds `Vocabulary`, `Challenge` and
-`Solution` in every workspace and checks that each solution theorem uses exactly the permitted
+**Per commit (CI).** `scripts/check-challenges.sh` builds `Vocabulary` and `Solution` without
+warnings, and `Challenge`, and checks that each solution theorem uses exactly the permitted
 axioms. This shows that the files elaborate and the solutions are sorry-free; it does not compare
 statements. `python3 scripts/challenge-prep.py check` checks the layout: module headers, the
 generated vocabulary block, Lean core/Mathlib-only Challenge imports, and the Challenge size.
 
 **Locally (any OS).** In a trusted checkout, after `lake build` at the root,
-`challenges/<name>/check.sh` builds the workspace, checks the solution axioms, checks that
+`challenges/<name>/check.sh` builds the three libraries, checks the solution axioms, checks that
 `Vocabulary.lean` is a verbatim copy of the library file, and compares a structural fingerprint
 (hashes of types, definition values and inductive shapes) of the challenge theorems and every
 project constant they depend on, in the Challenge and in the Solution environment. This emulates
@@ -65,4 +63,4 @@ Comparator's statement check; it is not a substitute for it.
 |---|---|---|---|
 | 2026-10-10 | release candidate | local `check.sh --strict`, macOS, Lean v4.35.0-rc3 | `headline` PASS (176 constants identical); `minimizer-sanity` PASS (178 constants identical); all solution axioms `propext`, `Classical.choice`, `Quot.sound` |
 | 2026-10-10 | release candidate, `minimizer-sanity` folded into `headline`, vocabulary inlined | local `check.sh --strict`, macOS, Lean v4.35.0-rc3 | `headline` PASS (184 constants identical, seven theorems); all solution axioms `propext`, `Classical.choice`, `Quot.sound` |
-| — | — | release Comparator workflow (Linux) | not yet run |
+| 2026-10-11 | `e6f310a` (v0.1.0) | release Comparator workflow (Linux), [run 38109472560](https://github.com/willmfeldman/one-phase-critical-dim/actions/runs/38109472560), Lean v4.35.0-rc3 | `headline` PASS (seven theorems); axiom check passed; attestation `comparator-attestation-v0.1.0.zip` on the [v0.1.0 release](https://github.com/willmfeldman/one-phase-critical-dim/releases/tag/v0.1.0) |

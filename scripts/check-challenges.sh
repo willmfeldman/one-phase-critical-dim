@@ -9,8 +9,12 @@
 # (.github/workflows/release-comparator.yml). Run it only on a trusted checkout, after the root
 # library is built.
 #
+# A workspace without its own lakefile (`challenges/headline`) is a set of libraries of the root
+# package, built from the repository root. Vocabulary and Solution must build without warnings;
+# Challenge states the theorems with `sorry`, so it is built without `--wfail`.
+#
 # Set LAKE to a command to use instead of `lake` (for example a wrapper that limits parallelism;
-# use absolute paths, since the command runs inside each workspace).
+# use absolute paths, since the command runs in the workspace or the repository root).
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 lake_() { ${LAKE:-lake} "$@"; }
@@ -18,14 +22,16 @@ status=0
 for config in "$ROOT"/challenges/*/config.json; do
   dir=$(dirname "$config")
   name=$(basename "$dir")
-  echo "==> $name: lake build Vocabulary Challenge Solution"
-  (cd "$dir" && lake_ build Vocabulary Challenge Solution)
+  # A workspace without its own lakefile is built by the root lakefile.
+  proj=$dir; [ -e "$dir/lakefile.toml" ] || [ -e "$dir/lakefile.lean" ] || proj=$ROOT
+  echo "==> $name: lake build Vocabulary Solution (--wfail), Challenge"
+  (cd "$proj" && lake_ build --wfail Vocabulary Solution && lake_ build Challenge)
   check=$(mktemp "${TMPDIR:-/tmp}/challenge-axioms-XXXXXX")
   ruby -rjson -e '
     cfg = JSON.parse(File.read(ARGV[0]))
     puts "import Solution"
     cfg["theorem_names"].each { |n| puts "#print axioms #{n}" }' "$config" > "$check.lean"
-  out=$(cd "$dir" && lake_ env lean "$check.lean" 2>&1) || { echo "$out"; status=1; continue; }
+  out=$(cd "$proj" && lake_ env lean "$check.lean" 2>&1) || { echo "$out"; status=1; continue; }
   if ! ruby -rjson -e '
     cfg = JSON.parse(File.read(ARGV[0]))
     out = STDIN.read.gsub(/\s+/, " ")

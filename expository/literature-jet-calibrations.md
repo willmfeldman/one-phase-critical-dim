@@ -198,13 +198,16 @@ The closest technical precedents treat integral, not dynamical, inequalities.
 Bettiol, Kummer and Mendes (2021) use semidefinite programming for pointwise positivity of curvature
 operators. This is another algebraic condition on jets settled by SDP.
 
-### The multi-dimensional caveat
+### The sharpness caveat
 
-Fantuzzi and Tobasco (arXiv 2207.13570) show that this pointwise relaxation is sharp in one
-dimension but generically not sharp in several (see also Fantuzzi, arXiv 2201.00362). This matters
-for the note. There is no general reason for a jet-space calibration to reach the true threshold
-when the base is multi-dimensional. In the Bernoulli problem it happens to come close: certificates
-exist on $\mathbb{R}^2$, $\mathbb{R}^3$ and $\mathbb{R}^5$, and the obstruction rules out
+Fantuzzi and Tobasco (arXiv 2207.13570) compare this pointwise relaxation with its occupation-measure
+dual. Under a coercivity hypothesis the two give the same bound. That bound equals the true minimum
+for one-dimensional, scalar-valued, or convex multidimensional problems, but generically it does not:
+occupation measures ignore nonlinear constraints on gradient fields. Their non-sharp examples include
+a one-dimensional scalar problem with a non-convex constraint (see also Fantuzzi, arXiv 2201.00362).
+This matters for the note. The Bernoulli problem is multidimensional and non-convex, so there is no
+general reason for a jet-space calibration to reach the true threshold. Here it happens to come
+close: certificates exist on $\mathbb{R}^2$, $\mathbb{R}^3$ and $\mathbb{R}^5$, and the obstruction rules out
 $\mathbb{R}^6$.
 
 ## What appears new in the Bernoulli argument
@@ -227,17 +230,6 @@ the structure $\Gamma_{lijk} = \delta_{li}U_{jk} + C_{lijk}$ of the flux. A boun
 hold on every free-boundary shape. And sharpness comes from a geometric obstruction, the
 De Silva–Jerison cone. This assessment rests on a single literature search. It should be read as
 "not found", not as "does not exist".
-
-## Changes from the search notes
-
-- Carathéodory (1935): the title, publisher (Teubner) and year were confirmed by library records, so
-  the bibliographic data are no longer tagged. The description "royal road" was not confirmed and
-  keeps its tag.
-- Bettiol–Kummer–Mendes: confirmed as vol. 5, no. 2 (2021). The page range is still unresolved,
-  because two sources disagree (pp. 200–228 and pp. 220–228).
-- Picone: a secondary source (Wikipedia) gives the same 1910 date. The primary source was not
-  checked, so the tag stays.
-- No detail in the search notes was contradicted.
 
 ## References
 
