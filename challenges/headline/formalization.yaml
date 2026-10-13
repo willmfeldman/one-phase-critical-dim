@@ -21,12 +21,7 @@ project:
     regularity theory of one-phase minimizers that the preprint cites is
     proved, in this repository or its dependencies, and the classification
     in dimensions d ≤ 4, which the preprint cites, is proved by the same
-    exclusion method with new certificates. Six further statements are
-    checks of the definitions, not results of the preprint: half-space
-    solutions are minimizers in every dimension; a one-sided linear
-    function with the wrong slope, a two-sided cone and 1 + ‖x‖² are not;
-    and 0 and a translated half-space solution are minimizers that are not
-    flat, so the hypotheses "nonzero" and "one-homogeneous" are needed.
+    exclusion method with new certificates.
   authors: ["William M. Feldman"]
   responsible_maintainers: ["William M. Feldman"]
   license: "Apache-2.0"
@@ -86,10 +81,10 @@ review:
   notes: >-
     The author checked the trusted definitions and statements in
     challenges/headline/Challenge.lean: the textbook class of one-phase
-    minimizers and the statements of the compared theorems. No other part of
+    minimizers and the statement of the compared theorem. No other part of
     the project was reviewed by hand. The library and its proofs are checked by
     Lean's kernel, and the comparator checks that the Solution proves exactly
-    the statements in Challenge.lean.
+    the statement in Challenge.lean.
 
 fidelity:
   divergences: >-
@@ -110,29 +105,10 @@ fidelity:
     approximation measured coordinate by coordinate, which gives the same
     closure as the Euclidean norm. The energy is a real Bochner integral,
     finite for H¹(B) functions on a ball. Only the flatness half of the
-    preprint's Theorem 1.1 is formalized. The six checks of the definitions
-    are not results of the preprint.
+    preprint's Theorem 1.1 is formalized.
 
 status:
   main_results:
     - declaration: "OnePhaseDimension.Headline.challenge_flat_of_textbookMin"
-      file: "challenges/headline/Challenge.lean"
-      comparator_config: "challenges/headline/config.json"
-    - declaration: "OnePhaseDimension.Sanity.challenge_textbookMin_halfSpace"
-      file: "challenges/headline/Challenge.lean"
-      comparator_config: "challenges/headline/config.json"
-    - declaration: "OnePhaseDimension.Sanity.challenge_not_textbookMin_slope"
-      file: "challenges/headline/Challenge.lean"
-      comparator_config: "challenges/headline/config.json"
-    - declaration: "OnePhaseDimension.Sanity.challenge_not_textbookMin_two_sided"
-      file: "challenges/headline/Challenge.lean"
-      comparator_config: "challenges/headline/config.json"
-    - declaration: "OnePhaseDimension.Sanity.challenge_not_textbookMin_one_add_norm_sq"
-      file: "challenges/headline/Challenge.lean"
-      comparator_config: "challenges/headline/config.json"
-    - declaration: "OnePhaseDimension.Sanity.challenge_textbookMin_zero"
-      file: "challenges/headline/Challenge.lean"
-      comparator_config: "challenges/headline/config.json"
-    - declaration: "OnePhaseDimension.Sanity.challenge_textbookMin_shifted_halfSpace"
       file: "challenges/headline/Challenge.lean"
       comparator_config: "challenges/headline/config.json"

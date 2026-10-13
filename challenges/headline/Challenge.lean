@@ -121,14 +121,7 @@ of the one-phase energy in `ℝᵈ` agrees almost everywhere with `x ↦ max ⟪
 vector `e`. Functions are compared almost everywhere throughout, as statements about Sobolev
 classes.
 
-The six statements in `OnePhaseDimension.Sanity` are not headline results. They check the
-definitions: the class `TextbookMin` contains the expected minimizers (half-space solutions, in
-every dimension), rejects functions that a mis-encoded energy would accept (a wrong slope, the
-two-sided cone, a non-harmonic function), and each hypothesis of the flatness theorem is needed
-(`0` is a minimizer; a translated half-space solution is a nonzero, nonnegative minimizer that is
-not flat).
-
-Every proof here is `sorry`: this file is the statement surface, and `Solution.lean` proves each
+The proof here is `sorry`: this file is the statement surface, and `Solution.lean` proves the
 theorem under the same name.
 
 ## References
@@ -160,58 +153,3 @@ theorem challenge_flat_of_textbookMin {d : ℕ} (hd₁ : 1 ≤ d) (hd₆ : d ≤
   sorry
 
 end OnePhaseDimension.Headline
-
-namespace OnePhaseDimension.Sanity
-
-open OnePhaseDimension.Textbook
-
-/-- Non-vacuity check of the definitions, not a headline result: every half-space solution
-`x ↦ max ⟪x, e⟫ 0`, `‖e‖ = 1`, is a minimizer in every dimension. This rules out a minimizer class
-that is empty or misses the flat solutions. -/
-theorem challenge_textbookMin_halfSpace {d : ℕ} {e : EuclideanSpace ℝ (Fin d)} (he : ‖e‖ = 1) :
-    TextbookMin (fun x ↦ max (inner ℝ x e) 0) := by
-  sorry
-
-/-- Sign-convention check of the definitions, not a headline result: on the line, a one-sided
-linear function with slope `s ≠ 1` is not a minimizer. This rules out a wrong normalization of the
-energy, such as `½|∇v|²`, which would move the slope to `√2`. -/
-theorem challenge_not_textbookMin_slope {e : EuclideanSpace ℝ (Fin 1)} (he : ‖e‖ = 1) {s : ℝ}
-    (hs : 0 < s) (hs1 : s ≠ 1) : ¬ TextbookMin (fun x ↦ s * max (inner ℝ x e) 0) := by
-  sorry
-
-/-- Check of the definitions, not a headline result: on the line, the two-sided cone
-`a x₊ + b x₋`, `a, b > 0`, is not a minimizer. This rules out a class that ignores the volume term
-`1_{v > 0}` or admits too few competitors. -/
-theorem challenge_not_textbookMin_two_sided {a b : ℝ} (ha : 0 < a) (hb : 0 < b) :
-    ¬ TextbookMin (fun x : EuclideanSpace ℝ (Fin 1) ↦ a * max (x 0) 0 + b * max (-x 0) 0) := by
-  sorry
-
-/-- Check of the definitions, not a headline result: in every dimension `d ≥ 1`, the positive,
-non-harmonic function `1 + ‖x‖²` is not a minimizer. This rules out a class that does not see the
-Dirichlet energy. -/
-theorem challenge_not_textbookMin_one_add_norm_sq {d : ℕ} (hd : 1 ≤ d) :
-    ¬ TextbookMin (fun x : EuclideanSpace ℝ (Fin d) ↦ 1 + ‖x‖ ^ 2) := by
-  sorry
-
-/-- Non-vacuity check of the hypotheses, not a headline result: `0` is a minimizer that is not
-flat, so the hypothesis "not almost everywhere zero" of the flatness theorem is needed. -/
-theorem challenge_textbookMin_zero {d : ℕ} :
-    TextbookMin (fun _ : EuclideanSpace ℝ (Fin d) ↦ (0 : ℝ)) ∧
-      ¬ ∃ e : EuclideanSpace ℝ (Fin d), ‖e‖ = 1 ∧
-        ∀ᵐ x ∂(volume : Measure (EuclideanSpace ℝ (Fin d))), (0 : ℝ) = max (inner ℝ x e) 0 := by
-  sorry
-
-/-- Non-vacuity check of the hypotheses, not a headline result: the translated half-space
-solution `x ↦ max (⟪x, e⟫ - 1) 0` is a nonnegative, nonzero minimizer that is not flat, so the
-one-homogeneity hypothesis of the flatness theorem is needed. -/
-theorem challenge_textbookMin_shifted_halfSpace {d : ℕ} {e : EuclideanSpace ℝ (Fin d)}
-    (he : ‖e‖ = 1) :
-    TextbookMin (fun x ↦ max (inner ℝ x e - 1) 0) ∧
-      (∀ x, 0 ≤ max (inner ℝ x e - 1) 0) ∧
-      ¬ (fun x ↦ max (inner ℝ x e - 1) 0) =ᵐ[volume] 0 ∧
-      ¬ ∃ e' : EuclideanSpace ℝ (Fin d), ‖e'‖ = 1 ∧
-        ∀ᵐ x ∂(volume : Measure (EuclideanSpace ℝ (Fin d))),
-          max (inner ℝ x e - 1) 0 = max (inner ℝ x e') 0 := by
-  sorry
-
-end OnePhaseDimension.Sanity

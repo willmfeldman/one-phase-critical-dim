@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this Lean formalization, please cite it using this metadata."
 title: "one-phase-critical-dim: flatness of one-homogeneous one-phase Bernoulli minimizers in dimensions at most six, in Lean"
-version: "0.1.1"
+version: "0.1.2"
 license: "Apache-2.0"
 repository-code: "https://github.com/willmfeldman/one-phase-critical-dim"
 authors:

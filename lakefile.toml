@@ -1,5 +1,5 @@
 name = "one_phase_dimension"
-version = "0.1.1"
+version = "0.1.2"
 description = "Flatness of one-homogeneous minimizers of the one-phase Bernoulli problem in dimensions at most six"
 keywords = ["math"]
 defaultTargets = ["OnePhaseDimension"]

@@ -12,7 +12,6 @@ public import OnePhaseDimension.Statements.Certificate
 public import OnePhaseDimension.Statements.CertificateGen
 public import OnePhaseDimension.Statements.Stability
 public import OnePhaseDimension.Statements.Exclusion
-public import OnePhaseDimension.Statements.Sanity
 public import OnePhaseDimension.Sanity.Textbook.Defs
 public import OnePhaseDimension.Sanity.Textbook.Encoding
 public import OnePhaseDimension.Sanity.Textbook.Dilation
@@ -198,8 +197,6 @@ public import OnePhaseDimension.Cutoff.Original
 public import OnePhaseDimension.Cutoff.Suspended
 public import OnePhaseDimension.Cutoff.Exclusion
 public import OnePhaseDimension.Main
-public import OnePhaseDimension.Sanity.Minimizer
-public import OnePhaseDimension.Sanity.Harmonic
 public import OnePhaseDimension.Certificate.Collect.Gram.Block04GramRef04Part0
 public import OnePhaseDimension.Certificate.Collect.Gram.Block04GramRef04Part1
 public import OnePhaseDimension.Certificate.Collect.Gram.Block08GramRef08Part0

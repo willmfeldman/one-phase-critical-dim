@@ -164,7 +164,7 @@ lake build
 | Path | Contents |
 |---|---|
 | `OnePhaseDimension.lean` | Root module; imports every library module |
-| `OnePhaseDimension/Statements/` | Frozen statements: headline, cones, certificate, stability, exclusion, sanity |
+| `OnePhaseDimension/Statements/` | Frozen statements: headline, cones, certificate, stability, exclusion |
 | `OnePhaseDimension/Certificate/` | The universal certificate and its bounds |
 | `OnePhaseDimension/Flux/`, `Stability/` | Flux fields, second variation, spherical stability |
 | `OnePhaseDimension/Cutoff/` | Cutoffs and the exclusion of the singular cones |
@@ -172,7 +172,7 @@ lake build
 | `OnePhaseDimension/Reduction/` | Minimizer bridges, blowups, dimension reduction |
 | `OnePhaseDimension/LowDim/` | Dimensions one to four |
 | `OnePhaseDimension/Registry/` | Interfaces to the regularity results proved in EBF |
-| `OnePhaseDimension/Sanity/` | The textbook minimizer class, its equivalence with the library's, sanity checks |
+| `OnePhaseDimension/Sanity/` | The textbook minimizer class and its equivalence with the library's |
 | `OnePhaseDimension/Vendor/TauCeti/` | Files ported from Tau Ceti, with attribution (`THIRD_PARTY_NOTICES.md`) |
 | `challenges/` | Comparator challenge workspaces (`challenges/README.md`) |
 | `formalization.yaml` | Theorem manifest: targets, expected axioms, challenges |
@@ -183,14 +183,10 @@ lake build
 
 `formalization.yaml` records the headline targets with their Lean names, the expected axioms
 (exactly `propext`, `Classical.choice`, `Quot.sound`), and the comparator challenge. The
-challenge `challenges/headline` states its theorems over Mathlib alone: its `Challenge.lean`
-restates, verbatim, `OnePhaseDimension/Sanity/Textbook/Defs.lean`, which defines the textbook
-minimizer class `TextbookMin` of Alt and Caffarelli. It contains
-
-- the main theorem, with `TextbookMin` in place of the library's minimizer class;
-- six checks of the definitions, not headline results: the textbook class contains the half-space
-  solutions, rejects wrong encodings, and shows that the hypotheses of the main theorem are
-  needed.
+challenge `challenges/headline` states the main theorem over Mathlib alone, with the textbook
+minimizer class `TextbookMin` of Alt and Caffarelli in place of the library's minimizer class:
+its `Challenge.lean` restates, verbatim, `OnePhaseDimension/Sanity/Textbook/Defs.lean`, which
+defines `TextbookMin`.
 
 The release Comparator workflow checks the challenge against its solution.
 

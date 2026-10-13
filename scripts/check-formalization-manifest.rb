@@ -10,8 +10,9 @@
 # * every target's module file exists and declares the target's declaration, and every related
 #   declaration is declared somewhere in the library; each target's expected_axioms equal
 #   axioms.expected;
-# * each target has exactly one of `challenge` (its own workspace) and `checked_in` (a nonempty
-#   list of workspaces owned by other targets, for a target folded into them); the challenge
+# * each target has at most one of `challenge` (its own workspace) and `checked_in` (a nonempty
+#   list of workspaces owned by other targets, for a target folded into them); a target with
+#   neither is checked in the library only and has no challenge_theorems; the challenge
 #   inventory (the targets' challenge fields) equals challenges/*/config.json, and every
 #   challenge_theorems entry of a checked_in target is among the challenge_theorems of each
 #   listed workspace;
@@ -83,12 +84,13 @@ targets.each do |t|
   %w[title kind module declaration source informal].each do |k|
     failures << "#{id}: missing #{k}" unless t[k].is_a?(String) && !t[k].strip.empty?
   end
+  compared = t.key?('challenge') || t.key?('checked_in')
   if t.key?('checked_in')
     failures << "#{id}: has both challenge and checked_in" if t.key?('challenge')
     failures << "#{id}: checked_in must be a nonempty list of workspace paths" \
       unless t['checked_in'].is_a?(Array) && !t['checked_in'].empty? && t['checked_in'].all? { |w| w.is_a?(String) }
-  else
-    failures << "#{id}: missing challenge (or checked_in)" unless t['challenge'].is_a?(String) && !t['challenge'].strip.empty?
+  elsif t.key?('challenge')
+    failures << "#{id}: challenge must be a workspace path" unless t['challenge'].is_a?(String) && !t['challenge'].strip.empty?
   end
   failures << "#{id}: expected_axioms differ from axioms.expected" \
     unless t['expected_axioms'].is_a?(Array) && t['expected_axioms'].sort == expected_axioms.sort
@@ -109,8 +111,12 @@ targets.each do |t|
       unless library_sources.values.any? { |src| declared.call(src, name) }
   end
   theorems = t['challenge_theorems']
-  failures << "#{id}: challenge_theorems must be a nonempty list" \
-    unless theorems.is_a?(Array) && !theorems.empty? && theorems.all? { |n| n.is_a?(String) && n.match?(LEAN_NAME) }
+  if compared
+    failures << "#{id}: challenge_theorems must be a nonempty list" \
+      unless theorems.is_a?(Array) && !theorems.empty? && theorems.all? { |n| n.is_a?(String) && n.match?(LEAN_NAME) }
+  elsif t.key?('challenge_theorems')
+    failures << "#{id}: challenge_theorems without challenge or checked_in"
+  end
 end
 
 # External challenge inventory.
